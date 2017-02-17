@@ -1,4 +1,4 @@
-// declarations
+//  declarations
 
 const express = require('express');
 const app = express();
@@ -15,10 +15,22 @@ let io = socketIo(server);
 //  server middleware
 
 app.use(express.static(publicPath));
-
+//  socket.io description
 io.on('connection', (socket)=>{
     console.log('new user connected');
-    console.log(socket);
+
+    // event emitter, sends data from server to client
+    socket.emit('newMessage', {
+        author: 'Kirh',
+        text: 'Hey. Long time no see. How are you there',
+        receivedAt: new Date()
+    });
+
+    // event listener, listen to custom event
+    socket.on('createMessage', (message )=>{
+        console.log('create message', message);
+    });
+
     socket.on('disconnect', ()=>{
         console.log('User has just disconnected');
     });
