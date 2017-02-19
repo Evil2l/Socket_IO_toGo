@@ -1,34 +1,45 @@
-//  declarations
-
+//  declarations of modules
 const express = require('express');
 const app = express();
-const http = require('http');
-const path = require('path');
 const socketIo = require('socket.io');
 
+//  node build-in modules
+const http = require('http');
+const path = require('path');
+
+// variable that saves the path to front-end folder
 const publicPath = path.join(__dirname, '../public');
+// variable that check if
 const port = process.env.PORT || 5500;
+// create a server using http library for socketIo
 let server = http.createServer(app);
+// that how we define our WebSocket server
 let io = socketIo(server);
+
+//  outside modules and it's methods
+const {generateMessage} = require('./utils/message');
 
 
 //  server middleware
-
+    // shows to server where to find static files, in this case front-end files
 app.use(express.static(publicPath));
 //  socket.io description
 io.on('connection', (socket)=>{
     console.log('new user connected');
+    // emit - event creation
+    socket.emit('newMessage', generateMessage('Bill', 'Welcome to chat app'));
 
-    // event emitter, sends data from server to client
-    socket.emit('newMessage', {
-        author: 'Kirh',
-        text: 'Hey. Long time no see. How are you there',
-        receivedAt: new Date()
-    });
-
-    // event listener, listen to custom event
+    // .broadcast creates event which will be visible to everyone but that socket
+    socket.broadcast.emit('newMessage', generateMessage('Bill','New user joined'));
+    // event listener on socket scope, listen to custom event
     socket.on('createMessage', (message )=>{
         console.log('create message', message);
+        // event emitter(start event) on every connection
+        io.emit('newMessage', generateMessage(
+                message.author,
+                message.text
+            )
+        )
     });
 
     socket.on('disconnect', ()=>{
