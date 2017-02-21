@@ -6,4 +6,6 @@ let generateMessage =  (author, text)=>{
     }
 };
 
-module.exports.generateMessage = generateMessage;
+// module.exports.generateMessage = generateMessage;
+//ES6 syntax
+module.exports = {generateMessage};

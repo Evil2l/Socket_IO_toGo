@@ -1,3 +1,4 @@
+// expect testing module
 const expect = require('expect');
 // ES6 method declaration from the other module;
 const {generateMessage} = require('./message');

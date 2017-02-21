@@ -16,4 +16,21 @@ socket.on('disconnect', function () {
 // event listener to get it from server
 socket.on('newMessage', function (message) {
     console.log(message);
+    var li = $('<li></li>');
+    li.text(`${message.author}: ${message.text}`);
+
+    $('#message-list').append(li);
+});
+
+
+$('#message-form').on('submit', function(e){
+    e.preventDefault();
+    socket.emit(
+        'createMessage',
+        {
+            author: 'User',
+            text: $('[name=message]').val()
+        },
+        function(){}
+    )
 });

@@ -25,21 +25,23 @@ const {generateMessage} = require('./utils/message');
 app.use(express.static(publicPath));
 //  socket.io description
 io.on('connection', (socket)=>{
+
     console.log('new user connected');
+
     // emit - event creation
     socket.emit('newMessage', generateMessage('Bill', 'Welcome to chat app'));
 
     // .broadcast creates event which will be visible to everyone but that socket
     socket.broadcast.emit('newMessage', generateMessage('Bill','New user joined'));
+
     // event listener on socket scope, listen to custom event
-    socket.on('createMessage', (message )=>{
+    socket.on('createMessage', (message, callback )=>{
+
         console.log('create message', message);
+
         // event emitter(start event) on every connection
-        io.emit('newMessage', generateMessage(
-                message.author,
-                message.text
-            )
-        )
+        io.emit('newMessage', generateMessage(message.author,message.text));
+        callback('This answer from server, create message heard');
     });
 
     socket.on('disconnect', ()=>{
