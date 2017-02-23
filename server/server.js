@@ -17,7 +17,7 @@ let server = http.createServer(app);
 let io = socketIo(server);
 
 //  outside modules and it's methods
-const {generateMessage} = require('./utils/message');
+const {generateMessage, generateLocationMessage} = require('./utils/message');
 
 
 //  server middleware
@@ -43,6 +43,12 @@ io.on('connection', (socket)=>{
         io.emit('newMessage', generateMessage(message.author,message.text));
         callback('This answer from server, create message heard');
     });
+
+    socket.on('createLocationMessage', (cords)=>{
+        io.emit('newLocationMessage', generateLocationMessage('Somebody', cords.lat, cords.lon )
+        );
+    });
+
 
     socket.on('disconnect', ()=>{
         console.log('User has just disconnected');
