@@ -41,7 +41,7 @@ io.on('connection', (socket)=>{
 
         // event emitter(start event) on every connection
         io.emit('newMessage', generateMessage(message.author,message.text));
-        callback('This answer from server, create message heard');
+        callback();
     });
 
     socket.on('createLocationMessage', (cords)=>{
