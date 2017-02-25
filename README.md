@@ -10,3 +10,7 @@ install the dependencies with npm
 
 $ npm install
 
+
+deployed and ready on heroku
+
+$ https://blooming-plateau-12836.herokuapp.com/
