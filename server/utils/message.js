@@ -8,9 +8,9 @@ let generateMessage =  (author, text)=>{
     }
 };
 
-let generateLocationMessage = (from, lat, lon)=>{
+let generateLocationMessage = (author, lat, lon)=>{
     return {
-        from,
+        author,
         url: `https://google.com/maps?q=${lat},${lon}`,
         createdAt: moment().valueOf()
     }

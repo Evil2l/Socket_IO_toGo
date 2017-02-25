@@ -18,7 +18,10 @@ let io = socketIo(server);
 
 //  outside modules and it's methods
 const {generateMessage, generateLocationMessage} = require('./utils/message');
+const {isRealString} = require('./utils/validation');
+const {Users} = require('./utils/users');
 
+let users = new Users();
 
 //  server middleware
     // shows to server where to find static files, in this case front-end files
@@ -28,31 +31,69 @@ io.on('connection', (socket)=>{
 
     console.log('new user connected');
 
-    // emit - event creation
-    socket.emit('newMessage', generateMessage('Bill', 'Welcome to chat app'));
 
-    // .broadcast creates event which will be visible to everyone but that socket
-    socket.broadcast.emit('newMessage', generateMessage('Bill','New user joined'));
+    socket.on('join', (params, callback)=>{
+        if(!isRealString(params.name) || !isRealString(params.room)){
+            return callback('Name and room are required!')
+        }
+
+        socket.join(params.room);
+
+        users.removeUser(socket.id);
+
+        users.addUser(socket.id, params.name, params.room);
+
+        io.to(params.room).emit('updateUserList', users.getUserList(params.room));
+
+        // emit - event creation only inside socket
+        socket.emit('newMessage', generateMessage('Admin', 'Welcome to chat app'));
+
+        // .broadcast creates event which will be visible to everyone but that socket
+        socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin',`${params.name} has joined`));
+
+        callback();
+    });
 
     // event listener on socket scope, listen to custom event
     socket.on('createMessage', (message, callback )=>{
+        let user = users.getUser(socket.id);
 
-        console.log('create message', message);
+        if(user && isRealString(message.text)){
+            // event emitter(start event) on every connection
+            io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
 
-        // event emitter(start event) on every connection
-        io.emit('newMessage', generateMessage(message.author,message.text));
+        }
+
         callback();
     });
 
     socket.on('createLocationMessage', (cords)=>{
-        io.emit('newLocationMessage', generateLocationMessage('Somebody', cords.lat, cords.lon )
-        );
+        let user = users.getUser(socket.id);
+
+        if(user) {
+
+            io.to(user.room)
+                .emit(
+                    // name of event
+                    'newLocationMessage',
+                    // callback
+                    generateLocationMessage(user.name, cords.lat, cords.lon)
+                );
+        }
     });
 
 
     socket.on('disconnect', ()=>{
-        console.log('User has just disconnected');
+        var user =users.removeUser(socket.id);
+
+        if(user){
+            io.to(user.room).emit('updateUserList', users.getUserList(user.room));
+            io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left.`));
+        }
+
     });
+
+
 });
 
 

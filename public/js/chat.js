@@ -25,11 +25,33 @@ function scrollToBottom() {
 
 //  listener to connect event
 socket.on('connect', function () {
-    console.log('Connected to server');
+        // this one creates object with params from address line
+        // keys - name attr from input element
+        // value - everything input field will contain
+    var params = $.deparam(window.location.search);
+
+    socket.emit('join', params, function(err){
+        if(err){
+            alert(err);
+            window.location.href = '/';
+        } else {
+            console.log(err);
+        }
+    });
 });
 
 socket.on('disconnect', function () {
     console.log('Disconnected from server');
+});
+
+socket.on('updateUserList', function (users) {
+    var ol = $('<ol></ol>');
+    console.log('1');
+
+    users.forEach(function(user){
+        ol.append($('<li></li>').text(user));
+    });
+    $('#users').html(ol);
 });
 
 // event listener to get it from server
@@ -77,7 +99,7 @@ $('#message-form').on('submit', function(e){
     socket.emit(
         'createMessage',
         {
-            author: 'User',
+
             text: messageTextbox.val()
         },
         function(){

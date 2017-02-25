@@ -13,7 +13,7 @@ describe('generateMessage',()=>{
         let result = generateMessage(author, text);
 
         expect(result.createdAt)
-            .toBeA('number', `Expected number type, but got ${typeof result}`);
+            .toBeA('number', `Expected number type, but got ${typeof result.createdAt}`);
         expect(result.author).toBe(author);
         expect(result.text).toBe(text);
         // .toInclude use for check if object have props
@@ -24,7 +24,7 @@ describe('generateMessage',()=>{
     });
 });
 describe('generateLocationMessage', ()=>{
-    it('should genereate correct location object', ()=>{
+    it('should generate correct location object', ()=>{
         let from = 'Your location';
         let lat = 45;
         let lon = 33;
